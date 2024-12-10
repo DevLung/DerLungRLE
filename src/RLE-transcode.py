@@ -48,7 +48,7 @@ for byte in pixels:
     if byte > 1:
         pixel = WHITE_PIXEL
     
-    for i in range(pxcount):
+    for _ in range(pxcount):
         print(pixel, end="")
 
         column += 1
