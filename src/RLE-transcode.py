@@ -19,6 +19,7 @@ class Pixel:
     newline_after: bool = False
 
 
+
 def get_image_data(image_path) -> dict[str, int | bytes]:
     """
     gets image data from a file and splits it into
@@ -36,11 +37,13 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
     }
 
 
+
 def color(color_byte: int) -> Color:
     """decodes color bytes into Color objects (grayscale)"""
 
     color_byte_decimal: float = color_byte / 0b0111_1111
     return Color(saturation=0, luminance=color_byte_decimal)
+
 
 
 def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
@@ -74,6 +77,7 @@ def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
     return pixels
 
 
+
 def display_image(pixels: list[Pixel]) -> None:
     for pixel in pixels:
         print_end: str = "\n" if pixel.newline_after else ""
@@ -81,6 +85,7 @@ def display_image(pixels: list[Pixel]) -> None:
             print(WHITE_PIXEL, end=print_end)
             continue
         print(BLACK_PIXEL, end=print_end)
+
 
 
 
