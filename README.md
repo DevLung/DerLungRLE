@@ -16,7 +16,7 @@ image is 5389px wide: `00010101 00001101`
 
 ## Body
 
-The pixel data starts after the header and consists of pxcount bytes and color bytes. The pxcolor bytes define how often the color defined by the color byte should be repeated.
+The pixel data starts after the header and consists of pxcount bytes and color bytes. The pxcolor bytes define how often the color defined by the color byte should be repeated. The 7 bits of color data contained in the color bytes are mapped to the luminance value of the HSL spectrum while the saturation is 0 (grayscale).
 
 ![encoding format](./format.png)
 
