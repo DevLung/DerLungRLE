@@ -59,6 +59,11 @@ def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
     decodes pixel data encoded following the standard defined at https://github.com/DevLung/DerLungRLE)
     into a list of pixels that can easily be displayed
 
+    image_width
+      width of image in pixels
+    pixel_data
+      DerLungRLE-encoded bytes of pixel data
+
     Return list of Pixel objects
     """
 
@@ -100,9 +105,14 @@ def pixels_to_stdout(pixels: list[Pixel]) -> None:
 
 
 
-def get_file_path() -> str:
+def get_file_path(argv_index: int, prompt: str) -> str:
     """
     gets file path from argv or, if no argv was supplied, asks user to input path into an input field
+    
+    argv_index
+      argv index to try to get the path from
+    prompt
+      string user should be prompted with when requesting path via input field
     
     Return file path
 
@@ -110,13 +120,13 @@ def get_file_path() -> str:
     """
 
     # check argv
-    if len(argv) > FILE_PATH_ARGV:
-        file_path: str = argv[FILE_PATH_ARGV]
+    if len(argv) > argv_index:
+        file_path: str = argv[argv_index]
         assert path.exists(file_path), INVALID_PATH_ERR
         return file_path
     
     # use input field
-    print(ENTER_PATH_PROMPT)
+    print(prompt)
     while True:
         file_path: str = input(" > ")
         if path.exists(file_path):
@@ -140,7 +150,7 @@ def decode_to_stdout(image_path) -> None:
 
 if __name__ == "__main__":
     try:
-        file_path: str = get_file_path()
+        file_path: str = get_file_path(FILE_PATH_ARGV, ENTER_PATH_PROMPT)
     except AssertionError as ex:
         print(ex, file=stderr)
         exit(1)

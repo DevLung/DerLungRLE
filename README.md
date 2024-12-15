@@ -1,6 +1,6 @@
 # DerLungRLE Encoding Specifications
 
-**The format supports 7 bits of color data per pixel. It is a lossless running length encoding but doesn't enlarge images that have lots of pixel variation.**
+**The format supports 7 bits of color data per pixel. It is a lossless run-length encoding but doesn't enlarge images that have lots of pixel variation.**
 
 ## Header
 
