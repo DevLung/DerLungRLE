@@ -14,16 +14,18 @@ HEADER_SIZE = 2
 MODE_ARGV = 1
 INPUT_PATH_ARGV = 2
 OUTPUT_PATH_ARGV = 3
-HELP_MSG = """Usage:
-    RLE-transcode.py MODE INPUTFILE [OUTPUTFILE]
-Modes:
-    -d  --decode    decode INPUTFILE and print pixels to stdout
-    -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE    (WIP - not implemented yet)
-    -?  --help      show this message"""
 INVALID_MODE_ERR = "please supply a valid mode of operation"
 INVALID_INPUT_PATH_ERR = "please supply a valid input file path"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
+HELP_MSG = """
+Usage:
+    RLE-transcode.py MODE INPUTFILE [OUTPUTFILE]
+Modes:
+    -d  --decode    decode INPUTFILE and print pixels to stdout
+    -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE    (WIP - not implemented yet)
+    -?  --help      show this message
+"""
 
 
 
@@ -155,7 +157,7 @@ def handle_critical_exception(function: Callable, *args, exception=Exception, st
     try:
         output: Any = function(*args)
     except exception as ex:
-        print(f"{ex}\n\n{HELP_MSG}", file=stderr)
+        print(f"{ex}\n{HELP_MSG}", file=stderr)
         exit(status_code)
     return output
 
@@ -176,7 +178,6 @@ def decode_to_stdout(image_path) -> None:
 
 if __name__ == "__main__":
     mode: str = handle_critical_exception(get_mode, exception=AssertionError)
-
     match mode:
         case "HELP":
             print(HELP_MSG)
