@@ -117,19 +117,19 @@ def get_mode() -> str:
     """
     gets mode of operation from argv
 
-    Return 'D' for decode, 'E' for encode, '?' for help
+    Return 'DECODE' for decode, 'ENCODE' for encode, 'HELP' for help
 
     Raise AssertionError if no mode is supplied or if mode is invalid
     """
 
     assert len(argv) > MODE_ARGV, INVALID_MODE_ERR
     match argv[MODE_ARGV].lower():
-        case "-d" | "--decode":
-            return "D"
-        case "-e" | "--encode":
-            return "E"
         case "-?" | "--help":
-            return "?"
+            return "HELP"
+        case "-d" | "--decode":
+            return "DECODE"
+        case "-e" | "--encode":
+            return "ENCODE"
         case _:
             raise AssertionError(INVALID_MODE_ERR)
 
@@ -178,10 +178,10 @@ if __name__ == "__main__":
     mode: str = handle_critical_exception(get_mode, exception=AssertionError)
 
     match mode:
-        case "?":
+        case "HELP":
             print(HELP_MSG)
-        case "D":
+        case "DECODE":
             input_path: str = handle_critical_exception(get_file_path, INPUT_PATH_ARGV, exception=AssertionError)
             decode_to_stdout(input_path)
-        case "E":
+        case "ENCODE":
             raise NotImplementedError
