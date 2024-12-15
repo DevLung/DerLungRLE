@@ -1,5 +1,6 @@
 from sys import argv, stderr, exit
 from os import path
+from typing import Callable, Any
 from dataclasses import dataclass
 import struct
 from colour import Color
@@ -11,15 +12,22 @@ HEADER_SIZE = 2
 
 # program definitions
 MODE_ARGV = 1
-FILE_PATH_ARGV = 2
-ENTER_PATH_PROMPT = "please enter a file path"
-INVALID_PATH_ERR = "please supply a valid file path"
+INPUT_PATH_ARGV = 2
+OUTPUT_PATH_ARGV = 3
+HELP_MSG = """Usage:
+    RLE-transcode.py MODE INPUTFILE [OUTPUTFILE]
+Modes:
+    -d  --decode    decode INPUTFILE and print pixels to stdout
+    -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE    (WIP - not implemented yet)
+    -?  --help      show this message"""
+INVALID_MODE_ERR = "please supply a valid mode of operation"
+INVALID_INPUT_PATH_ERR = "please supply a valid input file path"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
 
 
 
-@dataclass(repr=True, eq=True)
+@dataclass(repr=True)
 class Pixel:
     """stores the color of a pixel and if it should be followed by a line break."""
     color: Color
@@ -105,33 +113,51 @@ def pixels_to_stdout(pixels: list[Pixel]) -> None:
 
 
 
-def get_file_path(argv_index: int, prompt: str) -> str:
+def get_mode() -> str:
     """
-    gets file path from argv or, if no argv was supplied, asks user to input path into an input field
-    
-    argv_index
-      argv index to try to get the path from
-    prompt
-      string user should be prompted with when requesting path via input field
+    gets mode of operation from argv
+
+    Return 'D' for decode, 'E' for encode, '?' for help
+
+    Raise AssertionError if no mode is supplied or if mode is invalid
+    """
+
+    assert len(argv) > MODE_ARGV, INVALID_MODE_ERR
+    match argv[MODE_ARGV].lower():
+        case "-d" | "--decode":
+            return "D"
+        case "-e" | "--encode":
+            return "E"
+        case "-?" | "--help":
+            return "?"
+        case _:
+            raise AssertionError(INVALID_MODE_ERR)
+
+
+
+def get_file_path(argv_index: int) -> str:
+    """
+    gets and validates file path from given argv index
     
     Return file path
 
-    Raise AssertionError if file path supplied via argv is invalid
+    Raise AssertionError if file path is invalid
     """
 
-    # check argv
-    if len(argv) > argv_index:
-        file_path: str = argv[argv_index]
-        assert path.exists(file_path), INVALID_PATH_ERR
-        return file_path
-    
-    # use input field
-    print(prompt)
-    while True:
-        file_path: str = input(" > ")
-        if path.exists(file_path):
-            return file_path
-        print(INVALID_PATH_ERR, file=stderr)
+    assert len(argv) > argv_index, INVALID_INPUT_PATH_ERR
+    file_path: str = argv[argv_index]
+    assert path.exists(file_path), INVALID_INPUT_PATH_ERR
+    return file_path
+
+
+
+def handle_critical_exception(function: Callable, *args, exception=Exception, status_code=1) -> Any:
+    try:
+        output: Any = function(*args)
+    except exception as ex:
+        print(f"{ex}\n\n{HELP_MSG}", file=stderr)
+        exit(status_code)
+    return output
 
 
 
@@ -149,12 +175,13 @@ def decode_to_stdout(image_path) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        file_path: str = get_file_path(FILE_PATH_ARGV, ENTER_PATH_PROMPT)
-    except AssertionError as ex:
-        print(ex, file=stderr)
-        exit(1)
-    except KeyboardInterrupt:
-        exit()
+    mode: str = handle_critical_exception(get_mode, exception=AssertionError)
 
-    decode_to_stdout(file_path)
+    match mode:
+        case "?":
+            print(HELP_MSG)
+        case "D":
+            input_path: str = handle_critical_exception(get_file_path, INPUT_PATH_ARGV, exception=AssertionError)
+            decode_to_stdout(input_path)
+        case "E":
+            raise NotImplementedError
