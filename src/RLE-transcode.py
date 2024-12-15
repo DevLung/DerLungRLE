@@ -30,7 +30,7 @@ class Pixel:
 def get_image_data(image_path) -> dict[str, int | bytes]:
     """
     gets image data from a file and splits it into image width information and pixel data
-    following the standard defined at https://github.com/DevLung/RLE-transcode)
+    following the standard defined at https://github.com/DevLung/DerLungRLE)
 
     Return image data as dict containing
       "width": image width
@@ -56,7 +56,7 @@ def color(color_byte: int) -> Color:
 
 def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
     """
-    decodes pixel data encoded following the standard defined at https://github.com/DevLung/RLE-transcode)
+    decodes pixel data encoded following the standard defined at https://github.com/DevLung/DerLungRLE)
     into a list of pixels that can easily be displayed
 
     Return list of Pixel objects
@@ -116,7 +116,7 @@ def get_file_path() -> str:
         return file_path
     
     # use input field
-    print("please enter a file path")
+    print(ENTER_PATH_PROMPT)
     while True:
         file_path: str = input(" > ")
         if path.exists(file_path):
@@ -128,7 +128,7 @@ def get_file_path() -> str:
 def decode_to_stdout(image_path) -> None:
     """
     display image file at given path in terminal
-    following the standard defined at https://github.com/DevLung/RLE-transcode)
+    following the standard defined at https://github.com/DevLung/DerLungRLE)
     """
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
