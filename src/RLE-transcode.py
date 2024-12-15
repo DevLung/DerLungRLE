@@ -1,7 +1,7 @@
 from sys import argv, stderr, exit
+from os import path
 from dataclasses import dataclass
 import struct
-from os import path
 from colour import Color
 
 
@@ -83,7 +83,7 @@ def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
 
 
 
-def display_image(pixels: list[Pixel]) -> None:
+def pixels_to_stdout(pixels: list[Pixel]) -> None:
     """print a given list of Pixel objects to terminal"""
 
     for pixel in pixels:
@@ -120,7 +120,7 @@ def get_file_path() -> str:
 
 
 
-def decode_and_display(image_path) -> None:
+def decode_to_stdout(image_path) -> None:
     """
     display image file at given path in terminal
     following the standard defined at https://github.com/DevLung/RLE-transcode)
@@ -128,7 +128,8 @@ def decode_and_display(image_path) -> None:
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
     pixels: list[Pixel] = decode(image_data["width"], image_data["pxdata"])
-    display_image(pixels)
+    pixels_to_stdout(pixels)
+
 
 
 
@@ -141,4 +142,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         exit()
 
-    decode_and_display(file_path)
+    decode_to_stdout(file_path)
