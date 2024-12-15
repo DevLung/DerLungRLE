@@ -6,11 +6,16 @@ from colour import Color
 
 
 
-HEADER_LENGTH: int = 2
-# MODE_ARGV: int = 1
-FILE_PATH_ARGV: int = 1
-BLACK_PIXEL: str = "□"
-WHITE_PIXEL: str = "■"
+# standard definitions
+HEADER_SIZE = 2
+
+# program definitions
+MODE_ARGV = 1
+FILE_PATH_ARGV = 2
+ENTER_PATH_PROMPT = "please enter a file path"
+INVALID_PATH_ERR = "please supply a valid file path"
+BLACK_PIXEL = "□"
+WHITE_PIXEL = "■"
 
 
 
@@ -35,8 +40,8 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
     with open(image_path, "rb") as file:
         data: bytes = file.read()
     return {
-        "width": struct.unpack(">H", data[:HEADER_LENGTH])[0],
-        "pxdata": data[HEADER_LENGTH:]
+        "width": struct.unpack(">H", data[:HEADER_SIZE])[0],
+        "pxdata": data[HEADER_SIZE:]
     }
 
 
@@ -107,7 +112,7 @@ def get_file_path() -> str:
     # check argv
     if len(argv) > FILE_PATH_ARGV:
         file_path: str = argv[FILE_PATH_ARGV]
-        assert path.exists(file_path), "please supply a valid file path"
+        assert path.exists(file_path), INVALID_PATH_ERR
         return file_path
     
     # use input field
@@ -116,7 +121,7 @@ def get_file_path() -> str:
         file_path: str = input(" > ")
         if path.exists(file_path):
             return file_path
-        print("please supply a valid file path", file=stderr)
+        print(INVALID_PATH_ERR, file=stderr)
 
 
 
