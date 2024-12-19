@@ -16,6 +16,7 @@ INPUT_PATH_ARGV = 2
 OUTPUT_PATH_ARGV = 3
 INVALID_MODE_ERR = "please supply a valid mode of operation"
 INVALID_INPUT_PATH_ERR = "please supply a valid input file path"
+INVALID_OUTPUT_PATH_ERR = "please supply a valid output file path"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
 HELP_MSG = """
@@ -146,9 +147,10 @@ def get_file_path(argv_index: int) -> str:
     Raise AssertionError if file path is invalid
     """
 
-    assert len(argv) > argv_index, INVALID_INPUT_PATH_ERR
+    error_msg: str = INVALID_INPUT_PATH_ERR if argv_index == INPUT_PATH_ARGV else INVALID_OUTPUT_PATH_ERR
+    assert len(argv) > argv_index, error_msg
     file_path: str = argv[argv_index]
-    assert path.exists(file_path), INVALID_INPUT_PATH_ERR
+    assert path.exists(file_path), error_msg
     return file_path
 
 
