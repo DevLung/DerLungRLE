@@ -1,7 +1,6 @@
 from sys import argv, stderr, exit
 from os import path
 from typing import Callable, Any
-from dataclasses import dataclass
 import struct
 from colour import Color
 
@@ -28,13 +27,6 @@ Modes:
     -?  --help      show this message
 """
 
-
-
-@dataclass(repr=True)
-class Pixel:
-    """stores the color of a pixel and if it should be followed by a line break."""
-    color: Color
-    newline_after: bool = False
 
 
 
@@ -65,10 +57,10 @@ def color(color_byte: int) -> Color:
 
 
 
-def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
+def decode(image_width: int, pixel_data: bytes) -> list[list[Color]]:
     """
     decodes pixel data encoded following the standard defined at https://github.com/DevLung/DerLungRLE)
-    into a list of pixels that can easily be displayed
+    into a 2D list of pixels that can easily be iterated over or converted to NumPy array
 
     image_width
       width of image in pixels
@@ -79,40 +71,42 @@ def decode(image_width: int, pixel_data: bytes) -> list[Pixel]:
     """
 
     pxcount: int = 1
+    pixels: list[list[Color]] = [[]]
     column: int = 0
-    pixels: list[Pixel] = []
 
     for byte in pixel_data:
-        # check if most left bit is set
-        is_pxcount: bool = byte & 0b1000_0000 != 0
-        if is_pxcount:
+        if byte & 0b1000_0000 != 0: # if most left bit is set
             pxcount = byte & ~(1<<7) # clear most left bit
             continue
 
         for _ in range(pxcount):
-            column += 1
-
-            newline: bool = False
             if column == image_width:
-                newline = True
+                pixels.append([]) # new row
                 column = 0
 
-            pixels.append(Pixel(color(byte), newline))
+            pixels[-1].append(color(byte))
+            column += 1
 
         pxcount = 1
+    
+    # extend last row with black pixels if needed to create a complete pixel grid
+    if len(pixels[-1]) < image_width:
+        pixels[-1].extend([color(0b0000_0000)
+                           for _ in range(image_width - len(pixels[-1]))])
     return pixels
 
 
 
-def pixels_to_stdout(pixels: list[Pixel]) -> None:
+def pixels_to_stdout(pixels: list[list[Color]]) -> None:
     """print a given list of Pixel objects to terminal"""
 
-    for pixel in pixels:
-        print_end: str = "\n" if pixel.newline_after else ""
-        if pixel.color.get_luminance() > 0.5:
-            print(WHITE_PIXEL, end=print_end)
-            continue
-        print(BLACK_PIXEL, end=print_end)
+    for row in pixels:
+        for pixel in row:
+            if pixel.get_luminance() > 0.5:
+                print(WHITE_PIXEL, end="")
+                continue
+            print(BLACK_PIXEL, end="")
+        print() # newline
 
 
 
@@ -172,7 +166,7 @@ def decode_to_stdout(image_path) -> None:
     """
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
-    pixels: list[Pixel] = decode(image_data["width"], image_data["pxdata"])
+    pixels: list[list[Color]] = decode(image_data["width"], image_data["pxdata"])
     pixels_to_stdout(pixels)
 
 
