@@ -2,7 +2,6 @@ from sys import argv, stderr, exit
 from os import path
 from typing import Callable, Any
 import struct
-from colour import Color
 
 
 
@@ -49,29 +48,29 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
 
 
 
-def color(color_byte: int) -> Color:
-    """decodes color byte into Color object (7-bit grayscale)"""
+def color(color_byte: int) -> float:
+    """decodes color byte into decimal luminance value (7-bit grayscale)"""
 
     color_byte_decimal: float = color_byte / 0b0111_1111
-    return Color(saturation=0, luminance=color_byte_decimal)
+    return color_byte_decimal
 
 
 
-def decode(image_width: int, pixel_data: bytes) -> list[list[Color]]:
+def decode(image_width: int, pixel_data: bytes) -> list[list[float]]:
     """
     decodes pixel data encoded following the standard defined at https://github.com/DevLung/DerLungRLE)
-    into a 2D list of pixels that can easily be iterated over or converted to NumPy array
+    into a 2D list of pixel luminance values that can easily be iterated over or converted to NumPy array
 
     image_width
       width of image in pixels
     pixel_data
       DerLungRLE-encoded bytes of pixel data
 
-    Return list of Pixel objects
+    Return list of pixel luminance values
     """
 
     pxcount: int = 1
-    pixels: list[list[Color]] = [[]]
+    pixels: list[list[float]] = [[]]
     column: int = 0
 
     for byte in pixel_data:
@@ -97,12 +96,12 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[Color]]:
 
 
 
-def pixels_to_stdout(pixels: list[list[Color]]) -> None:
-    """print a given list of Pixel objects to terminal"""
+def pixels_to_stdout(pixels: list[list[float]]) -> None:
+    """prints a given list of pixel luminances to terminal (black/white only)"""
 
     for row in pixels:
         for pixel in row:
-            if pixel.get_luminance() > 0.5:
+            if pixel > 0.5:
                 print(WHITE_PIXEL, end="")
                 continue
             print(BLACK_PIXEL, end="")
@@ -161,12 +160,12 @@ def handle_critical_exception(function: Callable, *args, exception=Exception, st
 
 def decode_to_stdout(image_path) -> None:
     """
-    display image file at given path in terminal
+    displays image file at given path in terminal
     following the standard defined at https://github.com/DevLung/DerLungRLE)
     """
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
-    pixels: list[list[Color]] = decode(image_data["width"], image_data["pxdata"])
+    pixels: list[list[float]] = decode(image_data["width"], image_data["pxdata"])
     pixels_to_stdout(pixels)
 
 
