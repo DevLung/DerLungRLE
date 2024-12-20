@@ -140,9 +140,9 @@ def get_file_path(argv_index: int) -> str:
     Raise AssertionError if file path is invalid
     """
 
-    error_msg: str = INVALID_INPUT_PATH_ERR if argv_index == INPUT_PATH_ARGV else INVALID_OUTPUT_PATH_ERR
+    error_msg: str = INVALID_OUTPUT_PATH_ERR if argv_index == OUTPUT_PATH_ARGV else INVALID_INPUT_PATH_ERR
     assert len(argv) > argv_index, error_msg
-    file_path: str = argv[argv_index]
+    file_path: str = path.abspath(argv[argv_index])
     assert path.exists(file_path), error_msg
     return file_path
 
