@@ -20,7 +20,7 @@ BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
 HELP_MSG = """
 Usage:
-    RLE-transcode.py MODE INPUTFILE [OUTPUTFILE]
+    transcode.py MODE INPUTFILE [OUTPUTFILE]
 Modes:
     -d  --decode    decode INPUTFILE and print pixels to stdout
     -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE    (WIP - not implemented yet)
