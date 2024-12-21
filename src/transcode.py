@@ -49,15 +49,15 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
 
 
 
-def color(color_byte: int) -> float:
-    """decodes color byte into decimal luminance value (7-bit grayscale)"""
+def color(color_byte: int) -> int:
+    """decodes color byte into uint8 luminance value (grayscale)"""
 
-    color_byte_decimal: float = color_byte / 0b0111_1111
-    return color_byte_decimal
+    luminance_uint8 = int(color_byte / 0b0111_1111 * 0b1111_1111)
+    return luminance_uint8
 
 
 
-def decode(image_width: int, pixel_data: bytes) -> list[list[float]]:
+def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
     """
     decodes pixel data encoded following the standard defined at https://github.com/DevLung/DerLungRLE)
     into a 2D list of pixel luminance values that can easily be iterated over or converted to NumPy array
@@ -71,7 +71,7 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[float]]:
     """
 
     pxcount: int = 1
-    pixels: list[list[float]] = [[]]
+    pixels: list[list[int]] = [[]]
     column: int = 0
 
     for byte in pixel_data:
@@ -97,12 +97,12 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[float]]:
 
 
 
-def pixels_to_stdout(pixels: list[list[float]]) -> None:
+def pixels_to_stdout(pixels: list[list[int]]) -> None:
     """prints a given list of pixel luminances to terminal (black/white only)"""
 
     for row in pixels:
         for pixel in row:
-            if pixel > 0.5:
+            if pixel > 0b1111_1111 / 2:
                 print(WHITE_PIXEL, end="")
                 continue
             print(BLACK_PIXEL, end="")
@@ -166,7 +166,7 @@ def decode_to_stdout(image_path) -> None:
     """
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
-    pixels: list[list[float]] = decode(*image_data.values())
+    pixels: list[list[int]] = decode(*image_data.values())
     pixels_to_stdout(pixels)
 
 
