@@ -5,6 +5,7 @@ import struct
 
 
 
+
 # standard definitions
 HEADER_SIZE = 2
 
@@ -165,7 +166,7 @@ def decode_to_stdout(image_path) -> None:
     """
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
-    pixels: list[list[float]] = decode(image_data["width"], image_data["pxdata"])
+    pixels: list[list[float]] = decode(*image_data.values())
     pixels_to_stdout(pixels)
 
 
