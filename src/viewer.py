@@ -1,10 +1,10 @@
-from numpy._typing._array_like import NDArray
 import transcode
+from typing import Any, Callable
+from os import path
 import numpy as np
-from typing import Any
 from PIL import Image, ImageTk
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 
 
@@ -32,18 +32,15 @@ def fit_image(event) -> None:
         int(event.height / 2),
         image=image_tk,
         anchor="center")
-    
 
 
-def open_image() -> None:
+
+def open_image(image_path) -> None:
     global image_canvas, image, image_ratio
 
-    try:
-        file_path: str = transcode.get_file_path(INPUT_PATH_ARGV)
-    except AssertionError:
-        file_path: str = filedialog.askopenfilename()
+    assert path.exists(image_path), transcode.INVALID_INPUT_PATH_ERR
 
-    image_data: dict[str, int | bytes] = transcode.get_image_data(file_path)
+    image_data: dict[str, int | bytes] = transcode.get_image_data(image_path)
     pixel_list: list[list[int]] = transcode.decode(image_data["width"], image_data["pxdata"])
     pixels: np.ndarray[Any, np.dtype[int]] = np.array(pixel_list)
 
@@ -58,6 +55,15 @@ def open_image() -> None:
     # enable "Save as...", "Close" buttons in file menu
     file_menu.entryconfigure(2, state="normal")
     file_menu.entryconfigure(3, state="normal")
+
+
+
+def open_image_dialog() -> None:
+    file_path: str = filedialog.askopenfilename()
+    try:
+        open_image(file_path)
+    except AssertionError:
+        pass
 
 
 
@@ -77,6 +83,7 @@ def close_image() -> None:
 
 
 
+
 window = tk.Tk()
 window.title("DerLungRLE Viewer")
 window.config(bg=BG_COLOR)
@@ -91,7 +98,7 @@ window.config(menu=window_menu)
 
 file_menu = tk.Menu(window_menu)
 window_menu.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="Open...", command=open_image)
+file_menu.add_command(label="Open...", command=open_image_dialog)
 file_menu.add_command(label="Save as...", command=save_image, state="disabled")
 file_menu.add_command(label="Close", command=close_image, state="disabled")
 file_menu.add_command(label="Quit", command=window.quit)
@@ -100,6 +107,13 @@ file_menu.add_command(label="Quit", command=window.quit)
 image_canvas: tk.Canvas | None = None
 image: Image.Image
 image_ratio: float
+
+
+try:
+    file_path: str = transcode.get_file_path(INPUT_PATH_ARGV)
+    open_image(file_path)
+except AssertionError:
+    pass
 
 
 window.mainloop()
