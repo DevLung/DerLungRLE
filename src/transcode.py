@@ -75,8 +75,8 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
     column: int = 0
 
     for byte in pixel_data:
-        if byte & 0b1000_0000 != 0: # if most left bit is set
-            pxcount = byte & ~(1<<7) # clear most left bit
+        if byte & 0b1000_0000 != 0: # if first bit is set
+            pxcount = byte & ~(1<<7) # clear first bit
             continue
 
         for _ in range(pxcount):

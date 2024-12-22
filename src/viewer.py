@@ -15,7 +15,7 @@ BG_COLOR = "#343a40"
 
 
 
-def fit_image(event) -> None:
+def fit_image(event: tk.Event) -> None:
     global image_tk
 
     canvas_ratio: float = event.width / event.height
@@ -42,7 +42,7 @@ def open_image(image_path) -> None:
 
     image_data: dict[str, int | bytes] = transcode.get_image_data(image_path)
     pixel_list: list[list[int]] = transcode.decode(image_data["width"], image_data["pxdata"])
-    pixels: np.ndarray[Any, np.dtype[int]] = np.array(pixel_list)
+    pixels: np.ndarray[tuple[int, ...], np.dtype[Any]] = np.array(pixel_list, dtype=np.uint8)
 
     image = Image.fromarray(pixels)
     image_ratio = image.width / image.height
@@ -114,6 +114,7 @@ try:
     open_image(file_path)
 except AssertionError:
     pass
+
 
 
 window.mainloop()
