@@ -18,7 +18,12 @@ LANG = lang.EnglishUS()
 
 
 def fit_image(event: tk.Event) -> None:
-    """fits image into widget; bind to <Configure> event of widget to use"""
+    """
+    fits image into widget; bind to <Configure> event of widget to use
+    
+    needs a PIL Image object (image: Image.Image)
+    and a corresponding aspect ratio (image_ratio: float) in global scope
+    """
 
     global image_tk
 
@@ -47,17 +52,36 @@ def fit_image(event: tk.Event) -> None:
 
 
 
-def open_image(image_path) -> None:
-    global image_canvas, image, image_ratio
+def open_image(file_path) -> None:
+    """
+    gets image file at given path, converts it to PIL Image object
+    and puts it (image: Image.Image) and its calculated aspect ratio (image_ratio: float) into global scope
 
-    assert path.exists(image_path), LANG.Error.INVALID_INPUT_PATH
+    Raise AssertionError if image path is invalid
+    """
 
-    image_data: dict[str, int | bytes] = transcode.get_image_data(image_path)
+    global image, image_ratio
+
+    assert path.exists(file_path), LANG.Error.INVALID_INPUT_PATH
+
+    image_data: dict[str, int | bytes] = transcode.get_image_data(file_path)
     pixel_list: list[list[int]] = transcode.decode(image_data["width"], image_data["pxdata"])
     pixels: np.ndarray[tuple[int, ...], np.dtype[Any]] = np.array(pixel_list, dtype=np.uint8)
 
     image = Image.fromarray(pixels)
     image_ratio = image.width / image.height
+
+
+
+def display_image(image_path) -> None:
+    """
+    calls open_image(image_path) (--> Raise AssertionError of image path is invalid)
+    and displays live-fitting image on canvas
+    """
+
+    global image_canvas
+
+    open_image(image_path)
 
     if image_canvas != None:
         image_canvas.destroy()
@@ -73,9 +97,9 @@ def open_image(image_path) -> None:
 def open_image_dialog() -> None:
     file_path: str = filedialog.askopenfilename()
     try:
-        open_image(file_path)
+        display_image(file_path)
     except AssertionError:
-        pass
+        return
 
 
 
@@ -123,7 +147,7 @@ image_ratio: float
 
 try:
     file_path: str = transcode.get_file_path(INPUT_PATH_ARGV)
-    open_image(file_path)
+    display_image(file_path)
 except AssertionError:
     pass
 
