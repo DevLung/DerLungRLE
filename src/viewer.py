@@ -1,3 +1,4 @@
+import definitions.lang as lang
 import transcode
 from typing import Any
 from os import path
@@ -11,6 +12,7 @@ from tkinter import filedialog, messagebox
 
 INPUT_PATH_ARGV = 1
 BG_COLOR = "#343a40"
+LANG = lang.EnglishUS()
 
 
 
@@ -32,7 +34,10 @@ def fit_image(event: tk.Event) -> None:
         image_tk = ImageTk.PhotoImage(image.resize((width, height), Image.Resampling.NEAREST))
     except ValueError as ex:
         close_image()
-        messagebox.showerror("Image too small", "Image width or height is too small to display." + f"\nError message: {ex}")
+        messagebox.showerror(
+            LANG.Error.IMAGE_TOO_SMALL_TO_DISPLAY[LANG.SHORT],
+            LANG.Error.IMAGE_TOO_SMALL_TO_DISPLAY[LANG.LONG] + f"\n{LANG.Error.EXCEPTION_PREFIX} {ex}")
+        return
     
     image_canvas.create_image(
         int(event.width / 2),
@@ -45,7 +50,7 @@ def fit_image(event: tk.Event) -> None:
 def open_image(image_path) -> None:
     global image_canvas, image, image_ratio
 
-    assert path.exists(image_path), transcode.INVALID_INPUT_PATH_ERR
+    assert path.exists(image_path), LANG.Error.INVALID_INPUT_PATH
 
     image_data: dict[str, int | bytes] = transcode.get_image_data(image_path)
     pixel_list: list[list[int]] = transcode.decode(image_data["width"], image_data["pxdata"])
@@ -104,11 +109,11 @@ window_menu = tk.Menu(window)
 window.config(menu=window_menu)
 
 file_menu = tk.Menu(window_menu)
-window_menu.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="Open...", command=open_image_dialog)
-file_menu.add_command(label="Save as...", command=save_image, state="disabled")
-file_menu.add_command(label="Close", command=close_image, state="disabled")
-file_menu.add_command(label="Quit", command=window.quit)
+window_menu.add_cascade(label=LANG.Label.FILE_MENU, menu=file_menu)
+file_menu.add_command(label=LANG.Label.FILE_OPEN_BTN, command=open_image_dialog)
+file_menu.add_command(label=LANG.Label.FILE_SAVEAS_BTN, command=save_image, state="disabled")
+file_menu.add_command(label=LANG.Label.FILE_CLOSE_BTN, command=close_image, state="disabled")
+file_menu.add_command(label=LANG.Label.QUIT_BTN, command=window.quit)
 
 
 image_canvas: tk.Canvas | None = None

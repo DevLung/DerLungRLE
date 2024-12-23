@@ -1,3 +1,5 @@
+import definitions.standard as standard
+import definitions.lang as lang
 from sys import argv, stderr, exit
 from os import path
 from typing import Callable, Any
@@ -6,28 +8,13 @@ import struct
 
 
 
-# standard definitions
-HEADER_SIZE = 2
-
-# program definitions
 MODE_ARGV = 1
 INPUT_PATH_ARGV = 2
 OUTPUT_PATH_ARGV = 3
-INVALID_MODE_ERR = "please supply a valid mode of operation"
-INVALID_INPUT_PATH_ERR = "please supply a valid input file path"
-INVALID_OUTPUT_PATH_ERR = "please supply a valid output file path"
-FILE_TOO_SHORT_ERR = "supplied file is too short"
-WIDTH_ZERO_ERR = "the image width needs to be >0"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
-HELP_MSG = """
-Usage:
-    transcode.py MODE INPUTFILE [OUTPUTFILE]
-Modes:
-    -d  --decode    decode INPUTFILE and print pixels to stdout
-    -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE    (WIP - not implemented yet)
-    -?  --help      show this message
-"""
+LANG = lang.EnglishUS()
+STANDARD = standard.DerLungRLE(LANG)
 
 
 
@@ -46,13 +33,13 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
 
     with open(image_path, "rb") as file:
         data: bytes = file.read()
-    assert len(data) >= HEADER_SIZE + 1, FILE_TOO_SHORT_ERR
+    assert len(data) >= STANDARD.HEADER_SIZE + 1, LANG.Error.FILE_TOO_SHORT
     
     image_data: dict[str, int | bytes] = {
-        "width": struct.unpack(">H", data[:HEADER_SIZE])[0],
-        "pxdata": data[HEADER_SIZE:]
+        "width": struct.unpack(">H", data[:STANDARD.HEADER_SIZE])[0],
+        "pxdata": data[STANDARD.HEADER_SIZE:]
     }
-    assert image_data["width"] > 0, WIDTH_ZERO_ERR
+    assert image_data["width"] > 0, LANG.Error.WIDTH_ZERO
     return image_data
 
 
@@ -83,8 +70,8 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
     column: int = 0
 
     for byte in pixel_data:
-        if byte & 0b1000_0000 != 0: # if first bit is set
-            pxcount = byte & ~(1<<7) # clear first bit
+        if STANDARD.is_pxcount(byte):
+            pxcount = STANDARD.from_pxcount(byte)
             continue
 
         for _ in range(pxcount):
@@ -127,7 +114,7 @@ def get_mode() -> str:
     Raise AssertionError if no mode is supplied or if mode is invalid
     """
 
-    assert len(argv) > MODE_ARGV, INVALID_MODE_ERR
+    assert len(argv) > MODE_ARGV, LANG.Error.INVALID_MODE
     match argv[MODE_ARGV].lower():
         case "-?" | "--help":
             return "HELP"
@@ -136,7 +123,7 @@ def get_mode() -> str:
         case "-e" | "--encode":
             return "ENCODE"
         case _:
-            raise AssertionError(INVALID_MODE_ERR)
+            raise AssertionError(LANG.Error.INVALID_MODE)
 
 
 
@@ -149,7 +136,7 @@ def get_file_path(argv_index: int) -> str:
     Raise AssertionError if file path is invalid
     """
 
-    error_msg: str = INVALID_OUTPUT_PATH_ERR if argv_index == OUTPUT_PATH_ARGV else INVALID_INPUT_PATH_ERR
+    error_msg: str = LANG.Error.INVALID_OUTPUT_PATH if argv_index == OUTPUT_PATH_ARGV else LANG.Error.INVALID_INPUT_PATH
     assert len(argv) > argv_index, error_msg
     file_path: str = path.abspath(argv[argv_index])
     assert path.exists(file_path), error_msg
@@ -161,7 +148,7 @@ def handle_critical_exception(function: Callable, *args, exception=Exception, st
     try:
         output: Any = function(*args)
     except exception as ex:
-        print(f"{ex}\n{HELP_MSG}", file=stderr)
+        print(f"{ex}\n{LANG.Info.TRANSCODE_HELP}", file=stderr)
         exit(status_code)
     return output
 
@@ -184,7 +171,7 @@ if __name__ == "__main__":
     mode: str = handle_critical_exception(get_mode, exception=AssertionError)
     match mode:
         case "HELP":
-            print(HELP_MSG)
+            print(LANG.Info.TRANSCODE_HELP)
         case "DECODE":
             input_path: str = handle_critical_exception(get_file_path, INPUT_PATH_ARGV, exception=AssertionError)
             handle_critical_exception(decode_to_stdout, input_path, exception=AssertionError)
