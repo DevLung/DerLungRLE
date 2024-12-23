@@ -3,12 +3,13 @@ Language packs for information and error messages in DerLungRLE utilities.
 """
 
 
-
 class LanguagePack():
     """Common base class for all language packs."""
 
     SHORT = 0
     LONG = 1
+
+    NATIVE_NAME: str
 
     class Label:
         """label texts"""
@@ -37,8 +38,18 @@ class LanguagePack():
 
 
 
+
+
+
+
+
+
+
+
 class EnglishUS(LanguagePack):
     """English (US) language"""
+
+    NATIVE_NAME = "English (US)"
 
     class Label:
         FILE_MENU = "File"
@@ -53,7 +64,7 @@ Usage:
     transcode.py MODE INPUTFILE [OUTPUTFILE]
 Modes:
     -d  --decode    decode INPUTFILE and print pixels to stdout
-    -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE    (WIP - not implemented yet)
+    -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE
     -?  --help      show this message
 """
 
@@ -62,8 +73,48 @@ Modes:
         FILE_TOO_SHORT = "supplied file is too short"
         WIDTH_ZERO = "the image width needs to be >0"
         TOO_LARGE_FOR_WIDTH = "width over 65535 not supported"
-        TOO_LARGE_FOR_PXCOUNT = "pxcount value over 127 not supported: use multiple pxcount-color-pairs"
-        INVALID_MODE = "please supply a valid mode of operation"
-        INVALID_INPUT_PATH = "please supply a valid input file path"
-        INVALID_OUTPUT_PATH = "please supply a valid output file path"
+        TOO_LARGE_FOR_PXCOUNT = "pxcount value over 127 not supported: please use multiple pxcount-color-pairs"
+        INVALID_MODE = "Please supply a valid mode of operation."
+        INVALID_INPUT_PATH = "Please supply a valid input file path."
+        INVALID_OUTPUT_PATH = "Please supply a valid output file path."
         IMAGE_TOO_SMALL_TO_DISPLAY = ("Image too small", "Image width or height is too small to be displayed.")
+
+
+
+
+
+
+
+
+class GermanDE(LanguagePack):
+    """German (DE) language"""
+
+    NATIVE_NAME = "Deutsch (DE)"
+
+    class Label:
+        FILE_MENU = "Datei"
+        FILE_OPEN_BTN = "Öffnen..."
+        FILE_SAVEAS_BTN = "Speichern unter..."
+        FILE_CLOSE_BTN = "Schließen"
+        QUIT_BTN = "Beenden"
+    
+    class Info:
+        TRANSCODE_HELP = """
+Nutzung:
+    transcode.py MODUS INPUTFILE [OUTPUTFILE]
+Modi:
+    -d  --decode    INPUTFILE decodieren und in stdout schreiben
+    -e  --encode    OUTPUTFILE aus INPUTFILE codieren (standardmäßig out.bin im gleichen Verzeichnis wie INPUTFILE)
+    -?  --help      diese Nachricht anzeigen
+"""
+
+    class Error:
+        EXCEPTION_PREFIX = "Fehlermeldung:"
+        FILE_TOO_SHORT = "Datei ist zu kurz"
+        WIDTH_ZERO = "die Breite des Bildes muss >0 sein"
+        TOO_LARGE_FOR_WIDTH = "Breite über 65535 nicht unterstützt"
+        TOO_LARGE_FOR_PXCOUNT = "pxcount Wert über 127 nicht unterstützt: bitte nutze mehrere pxcount-color-Paare"
+        INVALID_MODE = "Bitte geben Sie einen gültigen Modus an."
+        INVALID_INPUT_PATH = "Bitte geben Sie einen gültigen Input-Dateipfad an."
+        INVALID_OUTPUT_PATH = "Bitte geben Sie einen gültigen Output-Dateipfad an."
+        IMAGE_TOO_SMALL_TO_DISPLAY = ("Bild zu klein", "Bildbreite oder -höhe ist zu klein, um angezeigt zu werden.")
