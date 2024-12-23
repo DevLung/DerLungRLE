@@ -16,6 +16,8 @@ OUTPUT_PATH_ARGV = 3
 INVALID_MODE_ERR = "please supply a valid mode of operation"
 INVALID_INPUT_PATH_ERR = "please supply a valid input file path"
 INVALID_OUTPUT_PATH_ERR = "please supply a valid output file path"
+FILE_TOO_SHORT_ERR = "supplied file is too short"
+WIDTH_ZERO_ERR = "the image width needs to be >0"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
 HELP_MSG = """
@@ -38,14 +40,20 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
     Return image data as dict containing
       "width": image width
       "data": pixel data
+
+    Raise AssertionError if file is too short or if width is 0
     """
 
     with open(image_path, "rb") as file:
         data: bytes = file.read()
-    return {
+    assert len(data) >= HEADER_SIZE + 1, FILE_TOO_SHORT_ERR
+    
+    image_data: dict[str, int | bytes] = {
         "width": struct.unpack(">H", data[:HEADER_SIZE])[0],
         "pxdata": data[HEADER_SIZE:]
     }
+    assert image_data["width"] > 0, WIDTH_ZERO_ERR
+    return image_data
 
 
 
@@ -179,6 +187,6 @@ if __name__ == "__main__":
             print(HELP_MSG)
         case "DECODE":
             input_path: str = handle_critical_exception(get_file_path, INPUT_PATH_ARGV, exception=AssertionError)
-            decode_to_stdout(input_path)
+            handle_critical_exception(decode_to_stdout, input_path, exception=AssertionError)
         case "ENCODE":
             raise NotImplementedError

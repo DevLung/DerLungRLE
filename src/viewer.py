@@ -1,5 +1,5 @@
 import transcode
-from typing import Any, Callable
+from typing import Any
 from os import path
 import numpy as np
 from PIL import Image, ImageTk
@@ -16,6 +16,8 @@ BG_COLOR = "#343a40"
 
 
 def fit_image(event: tk.Event) -> None:
+    """fits image into widget; bind to <Configure> event of widget to use"""
+
     global image_tk
 
     canvas_ratio: float = event.width / event.height
@@ -26,7 +28,12 @@ def fit_image(event: tk.Event) -> None:
         height = int(event.height)
         width = int(height * image_ratio)
     
-    image_tk = ImageTk.PhotoImage(image.resize((width, height), Image.Resampling.NEAREST))
+    try:
+        image_tk = ImageTk.PhotoImage(image.resize((width, height), Image.Resampling.NEAREST))
+    except ValueError as ex:
+        close_image()
+        messagebox.showerror("Image too small", "Image width or height is too small to display." + f"\nError message: {ex}")
+    
     image_canvas.create_image(
         int(event.width / 2),
         int(event.height / 2),
