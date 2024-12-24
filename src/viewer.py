@@ -1,3 +1,4 @@
+from numpy._typing._array_like import NDArray
 import definitions.lang as lang
 import transcode
 from typing import Any
@@ -65,8 +66,8 @@ def open_image(file_path) -> None:
     assert path.exists(file_path), LANG.Error.INVALID_INPUT_PATH
 
     image_data: dict[str, int | bytes] = transcode.get_image_data(file_path)
-    pixel_list: list[list[int]] = transcode.decode(image_data["width"], image_data["pxdata"])
-    pixels: np.ndarray[tuple[int, ...], np.dtype[Any]] = np.array(pixel_list, dtype=np.uint8)
+    pixel_list: list[list[int]] = transcode.decode(*image_data.values())
+    pixels: np.ndarray[tuple[int, ...], np.dtype[np.uint8]] = np.array(pixel_list, dtype=np.uint8)
 
     image = Image.fromarray(pixels)
     image_ratio = image.width / image.height
