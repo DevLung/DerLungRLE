@@ -24,6 +24,8 @@ The pxcount byte comes first, then the color byte that should be repeated as def
 
 Color bytes without prefixed pxcount byte are also allowed and will be repeated once.
 
+If the last row of the image is incompletely defined in the file, the rest of it will be rendered as black pixels.
+
 ### Examples:
 
 5 white pixels: `10000101 01111111`
