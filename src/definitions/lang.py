@@ -10,6 +10,7 @@ class LanguagePack():
     LONG = 1
 
     NATIVE_NAME: str
+    LANGUAGE_CODE: str
 
     class Label:
         """label texts"""
@@ -18,10 +19,13 @@ class LanguagePack():
         FILE_SAVEAS_BTN: str
         FILE_CLOSE_BTN: str
         QUIT_BTN: str
+        OPTIONS_MENU: str
+        LANGUAGE_SELECT: str
 
     class Info:
         """info messages"""
         TRANSCODE_HELP: str
+        VIEWER_HELP: tuple[str, str]
 
     class Error:
         """error messages"""
@@ -50,6 +54,7 @@ class EnglishUS(LanguagePack):
     """English (US) language"""
 
     NATIVE_NAME = "English (US)"
+    LANGUAGE_CODE = "en-us"
 
     class Label:
         FILE_MENU = "File"
@@ -57,6 +62,8 @@ class EnglishUS(LanguagePack):
         FILE_SAVEAS_BTN = "Save as..."
         FILE_CLOSE_BTN = "Close"
         QUIT_BTN = "Quit"
+        OPTIONS_MENU = "Options"
+        LANGUAGE_SELECT = "Language"
     
     class Info:
         TRANSCODE_HELP = """
@@ -67,6 +74,12 @@ Modes:
     -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE
     -?  --help      show this message
 """
+        VIEWER_HELP = ("Help", """Usage:
+    viewer.pyw [INPUTFILE] [OPTIONS [PARAMETERS]]
+Options:
+    --lang      PARAMETER: language code (ISO 639-1), changes language of program
+    -?          show this message
+""")
 
     class Error:
         EXCEPTION_PREFIX = "Error message:"
@@ -90,6 +103,7 @@ class GermanDE(LanguagePack):
     """German (DE) language"""
 
     NATIVE_NAME = "Deutsch (DE)"
+    LANGUAGE_CODE = "de-de"
 
     class Label:
         FILE_MENU = "Datei"
@@ -97,6 +111,8 @@ class GermanDE(LanguagePack):
         FILE_SAVEAS_BTN = "Speichern unter..."
         FILE_CLOSE_BTN = "Schließen"
         QUIT_BTN = "Beenden"
+        OPTIONS_MENU = "Optionen"
+        LANGUAGE_SELECT = "Sprache"
     
     class Info:
         TRANSCODE_HELP = """
@@ -107,6 +123,12 @@ Modi:
     -e  --encode    OUTPUTFILE aus INPUTFILE codieren (standardmäßig out.bin im gleichen Verzeichnis wie INPUTFILE)
     -?  --help      diese Nachricht anzeigen
 """
+        VIEWER_HELP = ("Hilfe", """Nutzung:
+    viewer.pyw [INPUTFILE] [OPTIONEN [PARAMETER]]
+Optionen:
+    --lang      PARAMETER: Sprachen-Code (ISO 639-1), ändert die Sprache des Programms
+    -?          diese Nachricht anzeigen
+""")
 
     class Error:
         EXCEPTION_PREFIX = "Fehlermeldung:"

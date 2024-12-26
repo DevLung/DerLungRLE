@@ -4,6 +4,7 @@ from sys import argv, stderr, exit
 from os import path
 from typing import Callable, Any
 import struct
+import inspect
 
 
 
@@ -11,9 +12,15 @@ import struct
 MODE_ARGV = 1
 INPUT_PATH_ARGV = 2
 OUTPUT_PATH_ARGV = 3
+LANG_ARGV_OPTION = "--lang"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
-LANG = lang.EnglishUS()
+LANG: lang.LanguagePack = lang.EnglishUS()
+# if there is enough argvs to fit lang option AND if option flag is supplied AND if there is another argv behind it
+if len(argv) > 2 and LANG_ARGV_OPTION in argv and argv.index(LANG_ARGV_OPTION) < len(argv) - 1:
+    for _, language in inspect.getmembers(lang, inspect.isclass):
+        if not language == lang.LanguagePack and language.LANGUAGE_CODE == argv[argv.index(LANG_ARGV_OPTION) + 1].lower():
+            LANG = language
 STANDARD = standard.DerLungRLE(LANG)
 
 

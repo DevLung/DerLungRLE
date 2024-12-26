@@ -1,19 +1,27 @@
-from numpy._typing._array_like import NDArray
 import definitions.lang as lang
 import transcode
-from typing import Any
+from sys import argv, executable, exit
 from os import path
 import numpy as np
 from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import filedialog, messagebox
+import inspect
+from subprocess import Popen
 
 
 
 
+LANG_ARGV_OPTION = "--lang"
+HELP_ARGV_OPTION = "-?"
 INPUT_PATH_ARGV = 1
 BG_COLOR = "#343a40"
-LANG = lang.EnglishUS()
+LANG: lang.LanguagePack = lang.EnglishUS()
+# if there is enough argvs to fit lang option AND if option flag is supplied AND if there is another argv behind it
+if len(argv) > 2 and LANG_ARGV_OPTION in argv and argv.index(LANG_ARGV_OPTION) < len(argv) - 1:
+    for _, language in inspect.getmembers(lang, inspect.isclass):
+        if not language == lang.LanguagePack and language.LANGUAGE_CODE == argv[argv.index(LANG_ARGV_OPTION) + 1].lower():
+            LANG = language
 
 
 
@@ -119,6 +127,20 @@ def close_image() -> None:
 
 
 
+def change_language() -> None:
+    if selected_language.get() == LANG.LANGUAGE_CODE:
+        return
+    
+    Popen((executable, # interpreter path
+        path.realpath(__file__), # this script's path
+        LANG_ARGV_OPTION, selected_language.get())) # selected language as argv
+    window.quit()
+
+
+
+
+
+
 
 
 window = tk.Tk()
@@ -128,6 +150,8 @@ window.geometry("800x500")
 window.state("zoomed")
 window.rowconfigure(0, weight=1)
 window.columnconfigure(0, weight=1)
+
+
 
 
 window_menu = tk.Menu(window)
@@ -141,9 +165,26 @@ file_menu.add_command(label=LANG.Label.FILE_CLOSE_BTN, command=close_image, stat
 file_menu.add_command(label=LANG.Label.QUIT_BTN, command=window.quit)
 
 
+options_menu = tk.Menu(window_menu)
+window_menu.add_cascade(label=LANG.Label.OPTIONS_MENU, menu=options_menu)
+
+language_select = tk.Menu(options_menu)
+options_menu.add_cascade(label=LANG.Label.LANGUAGE_SELECT, menu=language_select)
+selected_language = tk.StringVar(window, value=LANG.LANGUAGE_CODE)
+# add all available languages to menu
+for _, language in inspect.getmembers(lang, inspect.isclass):
+    if not language == lang.LanguagePack:
+        language_select.add_radiobutton(label=language.NATIVE_NAME,
+                                        value=language.LANGUAGE_CODE,
+                                        variable=selected_language,
+                                        command=change_language)
+
+
+
 image_canvas: tk.Canvas | None = None
 image: Image.Image
 image_ratio: float
+
 
 
 try:
@@ -151,6 +192,11 @@ try:
     display_image(file_path)
 except AssertionError:
     pass
+
+
+if HELP_ARGV_OPTION in argv:
+    messagebox.showinfo(*LANG.Info.VIEWER_HELP)
+
 
 
 
