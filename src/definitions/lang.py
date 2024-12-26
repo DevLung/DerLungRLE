@@ -68,11 +68,13 @@ class EnglishUS(LanguagePack):
     class Info:
         TRANSCODE_HELP = """
 Usage:
-    transcode.py MODE INPUTFILE [OUTPUTFILE]
+    transcode.py MODE INPUTFILE [OUTPUTFILE] [OPTIONS]
 Modes:
     -d  --decode    decode INPUTFILE and print pixels to stdout
     -e  --encode    encode OUTPUTFILE (out.bin in same directory as INPUTFILE by default) from INPUTFILE
     -?  --help      show this message
+Options:
+    --lang      PARAMETER: language code (ISO 639-1), changes language of program
 """
         VIEWER_HELP = ("Help", """Usage:
     viewer.pyw [INPUTFILE] [OPTIONS [PARAMETERS]]
@@ -122,6 +124,8 @@ Modi:
     -d  --decode    INPUTFILE decodieren und in stdout schreiben
     -e  --encode    OUTPUTFILE aus INPUTFILE codieren (standardmäßig out.bin im gleichen Verzeichnis wie INPUTFILE)
     -?  --help      diese Nachricht anzeigen
+Options:
+    --lang      PARAMETER: Sprachen-Code (ISO 639-1), ändert die Sprache des Programms
 """
         VIEWER_HELP = ("Hilfe", """Nutzung:
     viewer.pyw [INPUTFILE] [OPTIONEN [PARAMETER]]
