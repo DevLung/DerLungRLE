@@ -2,19 +2,18 @@
 DerLungRLE encoding standard definitions following the definition here: https://github.com/DevLung/DerLungRLE
 """
 
-
 import definitions.lang as lang
+
+
 
 
 class DerLungRLE:
     """DerLungRLE encoding standard definitions following the definition here: https://github.com/DevLung/DerLungRLE"""
     def __init__(self, msg_lang: lang.LanguagePack) -> None:
-        self.MSG: lang.LanguagePack = msg_lang
-
+        self.LANG: lang.LanguagePack = msg_lang
 
 
     HEADER_SIZE = 2 # bytes
-
 
 
     def encode_width(self, width: int) -> bytes:
@@ -23,8 +22,8 @@ class DerLungRLE:
 
         Raise AssertionError if value is too small or too large to be converted to width bytes
         """
-        assert width > 0, self.MSG.Error.WIDTH_ZERO
-        assert width <= 0b1111_1111_1111_1111, self.MSG.Error.TOO_LARGE_FOR_WIDTH
+        assert width > 0, self.LANG.Error.WIDTH_ZERO
+        assert width <= 0b1111_1111_1111_1111, self.LANG.Error.TOO_LARGE_FOR_WIDTH
         return width.to_bytes(2, "big")
     
 
@@ -39,7 +38,7 @@ class DerLungRLE:
         
         Raise AssertionError if value is too large to be converted to pxcount byte
         """
-        assert count <= 0b0111_1111, self.MSG.Error.TOO_LARGE_FOR_PXCOUNT
+        assert count <= 0b0111_1111, self.LANG.Error.TOO_LARGE_FOR_PXCOUNT
         return 0b1000_0000 + count
     
 
