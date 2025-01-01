@@ -5,6 +5,7 @@ from os import path
 from typing import Callable, Any
 import struct
 import inspect
+from functools import lru_cache
 
 
 
@@ -59,6 +60,7 @@ def color(color_byte: int) -> int:
 
 
 
+@lru_cache(maxsize=64)
 def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
     """
     decodes pixel data encoded following the standard defined at https://github.com/DevLung/DerLungRLE)
