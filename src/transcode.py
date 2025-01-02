@@ -3,6 +3,7 @@ import definitions.lang as lang
 from sys import argv, stderr, exit
 from os import path
 from typing import Callable, Any
+import logging
 import struct
 import inspect
 from functools import lru_cache
@@ -13,15 +14,29 @@ from functools import lru_cache
 MODE_ARGV = 1
 INPUT_PATH_ARGV = 2
 OUTPUT_PATH_ARGV = 3
+DEBUG_ARGV_OPTION = "--debug"
 LANG_ARGV_OPTION = "--lang"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
+LOG_PATH: str = path.realpath(path.join(path.dirname(__file__), "debug.log"))
+LOGGING_LEVEL = logging.INFO
+if DEBUG_ARGV_OPTION in argv:
+    LOGGING_LEVEL = logging.DEBUG
+logging.basicConfig(
+    level=LOGGING_LEVEL,
+    format="[%(asctime)s] [%(levelname)s] [%(filename)s: %(lineno)d, in %(funcName)s]:  %(message)s",
+    datefmt="%d-%m-%Y %H:%M:%S",
+    encoding="utf-8",
+    filename=LOG_PATH,
+    filemode="w"
+)
 LANG: lang.LanguagePack = lang.EnglishUS()
 # if there is enough argvs to fit lang option AND if option flag is supplied AND if there is another argv behind it
 if len(argv) > 2 and LANG_ARGV_OPTION in argv and argv.index(LANG_ARGV_OPTION) < len(argv) - 1:
     for _, language in inspect.getmembers(lang, inspect.isclass):
         if not language == lang.LanguagePack and language.LANGUAGE_CODE == argv[argv.index(LANG_ARGV_OPTION) + 1].lower():
             LANG = language
+logging.info(f"language set to '{LANG.NATIVE_NAME}'")
 STANDARD = standard.DerLungRLE(LANG)
 
 
@@ -38,6 +53,7 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
 
     Raise AssertionError if file is too short or if width is 0
     """
+    logging.debug(f"getting image data from {image_path}")
 
     with open(image_path, "rb") as file:
         data: bytes = file.read()
@@ -48,6 +64,7 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
         "pxdata": data[STANDARD.HEADER_SIZE:]
     }
     assert image_data["width"] > 0, LANG.Error.WIDTH_ZERO
+    logging.debug(f"read {len(data)} bytes of image data (pixel data: {len(image_data['pxdata'])}B, width={image_data['width']})")
     return image_data
 
 
@@ -73,6 +90,7 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
 
     Return list of pixel luminance values
     """
+    logging.debug(f"decoding {len(pixel_data)} bytes of pixel data with width={image_width}")
 
     pxcount: int = 1
     pixels: list[list[int]] = [[]]
@@ -103,6 +121,7 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
 
 def pixels_to_stdout(pixels: list[list[int]]) -> None:
     """prints a given list of pixel luminances to terminal (black/white only)"""
+    logging.debug(f"printing {len(pixels)} rows of {len(pixels[0])} pixels to stdout")
 
     for row in pixels:
         for pixel in row:
@@ -122,6 +141,7 @@ def get_mode() -> str:
 
     Raise AssertionError if no mode is supplied or if mode is invalid
     """
+    logging.debug(f"getting mode of operation from argv[{MODE_ARGV}]")
 
     assert len(argv) > MODE_ARGV, LANG.Error.INVALID_MODE
     match argv[MODE_ARGV].lower():
@@ -144,6 +164,7 @@ def get_file_path(argv_index: int) -> str:
 
     Raise AssertionError if file path is invalid
     """
+    logging.debug(f"getting file path from argv[{argv_index}]")
 
     error_msg: str = LANG.Error.INVALID_OUTPUT_PATH if argv_index == OUTPUT_PATH_ARGV else LANG.Error.INVALID_INPUT_PATH
     assert len(argv) > argv_index, error_msg
@@ -154,10 +175,28 @@ def get_file_path(argv_index: int) -> str:
 
 
 def handle_critical_exception(function: Callable, *args, exception=Exception, status_code=1) -> Any:
+    """
+    catches any exceptions of given type in given function,
+    logs them, prints them together with a help message to stdout
+    and exits the program with the given status code
+
+    function
+      the function to handle exceptions in
+    *args
+      any arguments to be passed to the function
+    exception=Exception
+      the type of exception to handle
+    status_code=1
+      the status code to exit with
+    """
+    logging.debug(f"setting up exception handler for {exception.__name__} in {function.__name__}")
+    
     try:
         output: Any = function(*args)
     except exception as ex:
-        print(f"{ex}\n{LANG.Info.TRANSCODE_HELP}", file=stderr)
+        logging.exception(ex)
+        print(ex, file=stderr)
+        print(LANG.Info.TRANSCODE_HELP)
         exit(status_code)
     return output
 
@@ -168,6 +207,7 @@ def decode_to_stdout(image_path) -> None:
     displays image file at given path in terminal
     following the standard defined at https://github.com/DevLung/DerLungRLE)
     """
+    logging.info(f"decoding {image_path} to stdout")
 
     image_data: dict[str, int | bytes] = get_image_data(image_path)
     pixels: list[list[int]] = decode(*image_data.values())
@@ -176,8 +216,9 @@ def decode_to_stdout(image_path) -> None:
 
 
 
-if __name__ == "__main__":
+def main() -> None:
     mode: str = handle_critical_exception(get_mode, exception=AssertionError)
+    logging.info(f"running {mode}")
     match mode:
         case "HELP":
             print(LANG.Info.TRANSCODE_HELP)
@@ -186,3 +227,12 @@ if __name__ == "__main__":
             handle_critical_exception(decode_to_stdout, input_path, exception=AssertionError)
         case "ENCODE":
             raise NotImplementedError
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as ex:
+        logging.critical(ex, exc_info=True)
+        print(LANG.Error.UNEXPECTED_CRITICAL + f"\n({LANG.Error.EXCEPTION_PREFIX} {repr(ex)})", file=stderr)
+        exit(1)
