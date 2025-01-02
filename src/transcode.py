@@ -19,25 +19,25 @@ LANG_ARGV_OPTION = "--lang"
 BLACK_PIXEL = "□"
 WHITE_PIXEL = "■"
 LOG_PATH: str = path.realpath(path.join(path.dirname(__file__), "debug.log"))
-LOGGING_LEVEL = logging.INFO
-if DEBUG_ARGV_OPTION in argv:
-    LOGGING_LEVEL = logging.DEBUG
 logging.basicConfig(
-    level=LOGGING_LEVEL,
+    level=logging.INFO,
     format="[%(asctime)s] [%(levelname)s] [%(filename)s: %(lineno)d, in %(funcName)s]:  %(message)s",
     datefmt="%d-%m-%Y %H:%M:%S",
     encoding="utf-8",
     filename=LOG_PATH,
     filemode="w"
 )
+if DEBUG_ARGV_OPTION in argv:
+    logging.getLogger().setLevel(logging.DEBUG)
 LANG: lang.LanguagePack = lang.EnglishUS()
 # if there is enough argvs to fit lang option AND if option flag is supplied AND if there is another argv behind it
 if len(argv) > 2 and LANG_ARGV_OPTION in argv and argv.index(LANG_ARGV_OPTION) < len(argv) - 1:
     for _, language in inspect.getmembers(lang, inspect.isclass):
         if not language == lang.LanguagePack and language.LANGUAGE_CODE == argv[argv.index(LANG_ARGV_OPTION) + 1].lower():
             LANG = language
-logging.info(f"language set to '{LANG.NATIVE_NAME}'")
 STANDARD = standard.DerLungRLE(LANG)
+
+
 
 
 
@@ -197,6 +197,7 @@ def handle_critical_exception(function: Callable, *args, exception=Exception, st
         logging.exception(ex)
         print(ex, file=stderr)
         print(LANG.Info.TRANSCODE_HELP)
+        logging.error(f"Exiting with status code {status_code}.")
         exit(status_code)
     return output
 
@@ -216,6 +217,8 @@ def decode_to_stdout(image_path) -> None:
 
 
 
+
+
 def main() -> None:
     mode: str = handle_critical_exception(get_mode, exception=AssertionError)
     logging.info(f"running {mode}")
@@ -227,12 +230,17 @@ def main() -> None:
             handle_critical_exception(decode_to_stdout, input_path, exception=AssertionError)
         case "ENCODE":
             raise NotImplementedError
+        
+    logging.info("Exiting with status code 0.")
 
 
 if __name__ == "__main__":
     try:
+        logging.info(f"__main__: {path.realpath(__file__)}")
+        logging.info(f"language set to '{LANG.NATIVE_NAME}'")
         main()
     except Exception as ex:
         logging.critical(ex, exc_info=True)
         print(LANG.Error.UNEXPECTED_CRITICAL + f"\n({LANG.Error.EXCEPTION_PREFIX} {repr(ex)})", file=stderr)
+        logging.critical("Exiting with status code 1.")
         exit(1)

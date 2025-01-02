@@ -30,6 +30,7 @@ class LanguagePack():
     class Error:
         """error messages"""
         EXCEPTION_PREFIX: str
+        GENERIC_ERROR: str
         UNEXPECTED_CRITICAL: str
         FILE_TOO_SHORT: str
         WIDTH_ZERO: str
@@ -86,6 +87,7 @@ Options:
 
     class Error:
         EXCEPTION_PREFIX = "Error message:"
+        GENERIC_ERROR = "An error occured."
         UNEXPECTED_CRITICAL = "An unexpected critical error occured. Terminating application..."
         FILE_TOO_SHORT = "supplied file is too short"
         WIDTH_ZERO = "the image width needs to be >0"
@@ -138,6 +140,7 @@ Optionen:
 
     class Error:
         EXCEPTION_PREFIX = "Fehlermeldung:"
+        GENERIC_ERROR = "Ein Fehler ist aufgetreten."
         UNEXPECTED_CRITICAL = "Ein unerwarteter kritischer Fehler ist aufgetreten. Anwendung wird beendet..."
         FILE_TOO_SHORT = "Datei ist zu kurz"
         WIDTH_ZERO = "die Breite des Bildes muss >0 sein"
