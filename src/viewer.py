@@ -44,7 +44,7 @@ if len(argv) > 2 and LANG_ARGV_OPTION in argv and argv.index(LANG_ARGV_OPTION) <
 def fit_image(event: tk.Event) -> None:
     """
     fits image into widget; bind to <Configure> event of widget to use
-    
+
     needs a PIL Image object (image: Image.Image)
     and a corresponding aspect ratio (image_ratio: float) in global scope
     """
@@ -58,7 +58,7 @@ def fit_image(event: tk.Event) -> None:
     else:
         height = int(event.height)
         width = int(height * image_ratio)
-    
+
     try:
         image_tk = ImageTk.PhotoImage(image.resize((width, height), Image.Resampling.NEAREST))
     except ValueError as ex:
@@ -69,7 +69,7 @@ def fit_image(event: tk.Event) -> None:
             LANG.Error.IMAGE_TOO_SMALL_TO_DISPLAY[LANG.LONG] + f"\n{LANG.Error.EXCEPTION_PREFIX} {ex}"
         )
         return
-    
+
     image_canvas.create_image(
         int(event.width / 2),
         int(event.height / 2),
@@ -112,7 +112,7 @@ def display_image(image_path) -> None:
 
     open_image(image_path)
 
-    if image_canvas != None:
+    if image_canvas is not None:
         logging.debug("destroying old image canvas")
         image_canvas.destroy()
     logging.debug("displaying image on new image canvas")
@@ -155,7 +155,7 @@ def change_language() -> None:
     if selected_language.get() == LANG.LANGUAGE_CODE:
         logging.debug("Selected language is currently loaded, doing nothing.")
         return
-    
+
     Popen((executable, # interpreter path
         path.realpath(__file__), # this script's path
         LANG_ARGV_OPTION, selected_language.get())) # selected language as argv

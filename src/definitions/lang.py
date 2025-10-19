@@ -66,7 +66,7 @@ class EnglishUS(LanguagePack):
         QUIT_BTN = "Quit"
         OPTIONS_MENU = "Options"
         LANGUAGE_SELECT = "Language"
-    
+
     class Info:
         TRANSCODE_HELP = """
 Usage:
@@ -119,7 +119,7 @@ class GermanDE(LanguagePack):
         QUIT_BTN = "Beenden"
         OPTIONS_MENU = "Optionen"
         LANGUAGE_SELECT = "Sprache"
-    
+
     class Info:
         TRANSCODE_HELP = """
 Nutzung:

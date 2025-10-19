@@ -58,7 +58,7 @@ def get_image_data(image_path) -> dict[str, int | bytes]:
     with open(image_path, "rb") as file:
         data: bytes = file.read()
     assert len(data) >= STANDARD.HEADER_SIZE + 1, LANG.Error.FILE_TOO_SHORT
-    
+
     image_data: dict[str, int | bytes] = {
         "width": struct.unpack(">H", data[:STANDARD.HEADER_SIZE])[0],
         "pxdata": data[STANDARD.HEADER_SIZE:]
@@ -110,7 +110,7 @@ def decode(image_width: int, pixel_data: bytes) -> list[list[int]]:
             column += 1
 
         pxcount = 1
-    
+
     # extend last row with black pixels if needed to create a complete pixel grid
     if len(pixels[-1]) < image_width:
         pixels[-1].extend([color(0b0000_0000)
@@ -159,7 +159,7 @@ def get_mode() -> str:
 def get_file_path(argv_index: int) -> str:
     """
     gets and validates file path from given argv index
-    
+
     Return file path
 
     Raise AssertionError if file path is invalid
@@ -190,7 +190,7 @@ def handle_critical_exception(function: Callable, *args, exception=Exception, st
       the status code to exit with
     """
     logging.debug(f"setting up exception handler for {exception.__name__} in {function.__name__}")
-    
+
     try:
         output: Any = function(*args)
     except exception as ex:
@@ -230,7 +230,7 @@ def main() -> None:
             handle_critical_exception(decode_to_stdout, input_path, exception=AssertionError)
         case "ENCODE":
             raise NotImplementedError
-        
+
     logging.info("Exiting with status code 0.")
 
 

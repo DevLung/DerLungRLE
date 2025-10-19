@@ -25,7 +25,7 @@ class DerLungRLE:
         assert width > 0, self.LANG.Error.WIDTH_ZERO
         assert width <= 0b1111_1111_1111_1111, self.LANG.Error.TOO_LARGE_FOR_WIDTH
         return width.to_bytes(2, "big")
-    
+
 
     def is_pxcount(self, byte: int) -> bool:
         """Return if given byte is a pxcount byte"""
@@ -35,12 +35,12 @@ class DerLungRLE:
     def to_pxcount(self, count: int) -> int:
         """
         creates pxcount byte from a given value
-        
+
         Raise AssertionError if value is too large to be converted to pxcount byte
         """
         assert count <= 0b0111_1111, self.LANG.Error.TOO_LARGE_FOR_PXCOUNT
         return 0b1000_0000 + count
-    
+
 
     def from_pxcount(self, byte: int) -> int:
         """converts pxcount byte to int"""
